@@ -1,90 +1,80 @@
 package academy.javapro.week9.lab;
 
-import java.util.List;
+import java.util.Objects;
 
 /**
- * Main class to test the library management system implementation.
+ * Class representing a magazine that implements LibraryItem.
  */
-public class Main {
-    public static void main(String[] args) {
-        // Create a repository for magazines
-        Repository<Magazine> magazineRepository = new Repository<>();
+public final class Magazine implements LibraryItem {
+    private final String title;
+    private final int issueNumber;
+    private final String publicationDate;
 
-        // Create several magazine instances
-        Magazine magazine1 = new Magazine("National Geographic", 243, "June 2023");
-        Magazine magazine2 = new Magazine("Time", 156, "April 2023");
-        Magazine magazine3 = new Magazine("Wired", 92, "May 2023");
-
-        // Add magazines to the repository
-        magazineRepository.add(magazine1);
-        magazineRepository.add(magazine2);
-        magazineRepository.add(magazine3);
-
-        System.out.println("=== Magazine Repository Demo ===");
-        System.out.println("Added magazines to repository. Count: " + magazineRepository.count());
-
-        // Print all magazines
-        System.out.println("\nAll magazines:");
-        for (Magazine magazine : magazineRepository.getAll()) {
-            System.out.println("- " + magazine);
+    /**
+     * Constructs a Magazine instance.
+     * @param title the title of the magazine (cannot be null or empty)
+     * @param issueNumber the issue number (must be positive)
+     * @param publicationDate the publication date (cannot be null or empty)
+     * @throws IllegalArgumentException if any parameter is invalid
+     */
+    public Magazine(String title, int issueNumber, String publicationDate) {
+        if (title == null || title.trim().isEmpty()) {
+            throw new IllegalArgumentException("Title cannot be null or empty");
+        }
+        if (issueNumber <= 0) {
+            throw new IllegalArgumentException("Issue number must be positive");
+        }
+        if (publicationDate == null || publicationDate.trim().isEmpty()) {
+            throw new IllegalArgumentException("Publication date cannot be null or empty");
         }
 
-        // Find magazines by title (contains a keyword)
-        System.out.println("\nMagazines containing \"Geo\" in the title:");
-        List<Magazine> geoMagazines = magazineRepository.find(
-                magazine -> magazine.getTitle().contains("Geo"));
-        for (Magazine magazine : geoMagazines) {
-            System.out.println("- " + magazine);
-        }
+        this.title = title;
+        this.issueNumber = issueNumber;
+        this.publicationDate = publicationDate;
+    }
 
-        // Find magazines published after a certain issue number
-        System.out.println("\nMagazines with issue number > 100:");
-        List<Magazine> recentMagazines = magazineRepository.find(
-                magazine -> magazine.getIssueNumber() > 100);
-        for (Magazine magazine : recentMagazines) {
-            System.out.println("- " + magazine);
-        }
+    @Override
+    public String getTitle() {
+        return title;
+    }
 
-        // Test the equals method by adding a duplicate magazine
-        System.out.println("\nAdding duplicate magazine...");
-        Magazine duplicateMagazine = new Magazine("National Geographic", 243, "June 2023");
-        System.out.println("Is magazine already in repository? " +
-                magazineRepository.contains(duplicateMagazine));
-        magazineRepository.add(duplicateMagazine);
-        System.out.println("Repository count is still: " + magazineRepository.count());
+    @Override
+    public String getItemType() {
+        return "Magazine";
+    }
 
-        System.out.println("\nDemonstrating getItemType() and getUniqueIdentifier():");
-        for (Magazine magazine : magazineRepository.getAll()) {
-            System.out.println("- Item Type: " + magazine.getItemType());
-            System.out.println("  Unique ID: " + magazine.getUniqueIdentifier());
-            System.out.println("  Title: " + magazine.getTitle());
-            System.out.println();
-        }
+    @Override
+    public String getUniqueIdentifier() {
+        return title + "-" + issueNumber;
+    }
 
-        // We could also demonstrate finding a magazine by its unique identifier
-        String searchId = magazine1.getUniqueIdentifier();
-        System.out.println("Finding magazine with ID: " + searchId);
-        List<Magazine> foundMagazines = magazineRepository.find(
-                magazine -> magazine.getUniqueIdentifier().equals(searchId));
-        if (!foundMagazines.isEmpty()) {
-            System.out.println("Found: " + foundMagazines.get(0));
-        }
+    public int getIssueNumber() {
+        return issueNumber;
+    }
 
+    public String getPublicationDate() {
+        return publicationDate;
+    }
 
-        // Test exception handling
-        try {
-            Magazine invalidMagazine = new Magazine("", 1, "January 2023");
-            System.out.println("This should not print!");
-        } catch (IllegalArgumentException e) {
-            System.out.println("\nCaught expected exception: " + e.getMessage());
-        }
+    @Override
+    public String toString() {
+        return "Magazine{" +
+                "title='" + title + '\'' +
+                ", issueNumber=" + issueNumber +
+                ", publicationDate='" + publicationDate + '\'' +
+                '}';
+    }
 
-        try {
-            Magazine invalidMagazine = new Magazine("Test", -5, "January 2023");
-            System.out.println("This should not print!");
-        } catch (IllegalArgumentException e) {
-            System.out.println("Caught expected exception: " + e.getMessage());
-        }
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Magazine magazine = (Magazine) o;
+        return issueNumber == magazine.issueNumber && Objects.equals(title, magazine.title);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(title, issueNumber);
     }
 }
-
